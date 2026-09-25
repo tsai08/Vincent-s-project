@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@layer base {
+	body {
+		margin: 0;
+		font-family: Georgia, 'Times New Roman', serif;
+	}
+
+	button {
+		font: inherit;
+	}
+}
