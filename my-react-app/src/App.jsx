@@ -9,15 +9,27 @@ const matchups = {
 
 function App() {
   const [selectedType, setSelectedType] = useState('Fire')
+  const [matchupData, setMatchupData] = useState(null)
   const matchup = matchups[selectedType]
 
-  function getMatchup(type) {
-    // API CALL WILL GO HERE, AND WE WILL RETURN THE RESPONSE
-    return `Fake API response: You are fighting a ${type}-type Pokémon.`;
+  async function getMatchup(type) {
+    try {
+      const response = await fetch(`http://localhost:3000/api/type/${encodeURIComponent(type)}`)
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Unable to load matchup:', error)
+      return null
+    }
   }
 
-  function handleTypeClick(type) {
+  async function handleTypeClick(type) {
     setSelectedType(type)
+    setMatchupData(await getMatchup(type))
   }
 
   return (
@@ -51,7 +63,7 @@ function App() {
                       : 'bg-slate-50'
                   }`}
                   key={type}
-                  onClick={() => setSelectedType(type)}
+                  onClick={() => handleTypeClick(type)}
                   type="button"
                 >
                   {type}
@@ -64,7 +76,18 @@ function App() {
               <div>
                 <p className="text-lg font-black">Selected type: {selectedType}</p>
                 <p className="font-black">Best match for {selectedType}</p>
-                <p className="mt-1 leading-6 text-slate-600">{matchup.text}</p>
+                {matchupData ? (
+                  <>
+                    <p className="mt-1 leading-6 text-slate-600">
+                      Half damage to: {matchupData.half_damage_to.join(', ')}
+                    </p>
+                    <p className="leading-6 text-slate-600">
+                      Double damage from: {matchupData.double_damage_from.join(', ')}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 leading-6 text-slate-600">{matchup.text}</p>
+                )}
               </div>
             </div>
           </div>
